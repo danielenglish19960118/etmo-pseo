@@ -1,0 +1,74 @@
+---
+import wordsA from '../../data/words-a.json';
+
+// 合併所有字母資料庫 (目前先載入 A 開頭字庫)
+const allWords = [
+  ...wordsA,
+];
+
+// 靜態路徑生成：編譯時一次產出所有獨立 HTML 網頁
+export async function getStaticPaths() {
+  const data = [
+    ...wordsA,
+  ];
+  return data.map(entry => ({
+    params: { slug: entry.slug },
+    props: { wordData: entry },
+  }));
+}
+
+const { wordData } = Astro.props;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "DefinedTerm",
+  "name": wordData.word,
+  "description": wordData.etymology,
+  "inDefinedTermSet": "ETMO-DECODE 海外華人歷史語源辭典"
+};
+---
+
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{wordData.word} 歷史語源與字根拆解 | ETMO-DECODE</title>
+  <meta name="description" content={`【${wordData.word}】級別：${wordData.level}。前綴 ${wordData.prefix}，原始日耳曼語根 ${wordData.root}，Scots 同源詞 ${wordData.scots}。`} />
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: #1f2937; background: #fdfdfd; }
+    .badge { background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 9999px; font-size: 0.85em; font-weight: 600; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid #2563eb; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .cta-box { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 28px; border-radius: 12px; margin-top: 40px; text-align: center; }
+    .cta-btn { display: inline-block; background: #f59e0b; color: #0f172a; font-weight: bold; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 style="font-size: 2.5rem; margin: 10px 0 6px 0;">{wordData.word}</h1>
+    <span class="badge">{wordData.level}</span>
+  </header>
+
+  <main>
+    <section class="card">
+      <h3>🔹 語言學構詞拆解</h3>
+      <p><strong>前綴 / 字首：</strong> {wordData.prefix}</p>
+      <p><strong>原始日耳曼語根 (Proto-Germanic)：</strong> {wordData.root}</p>
+      <p><strong>蘇格蘭語 Scots 同源詞：</strong> {wordData.scots}</p>
+    </section>
+
+    <section style="margin-top: 24px;">
+      <h2>📜 歷史演變與記憶邏輯</h2>
+      <p>{wordData.etymology}</p>
+    </section>
+
+    <div class="cta-box">
+      <h3>📚 突破海外學習與職場瓶頸：解鎖 30,000 字 Anki 閃卡牌組</h3>
+      <p style="opacity: 0.85; margin-top: 8px; font-size: 0.95em;">專為海外華人、留學生與移民設計的歷史語源記憶資料庫。</p>
+      <a href="https://your-shop.lemon-squeezy.com" target="_blank" class="cta-btn">
+        前往小店獲取完整 30,000 字 Anki 牌組 ($39 USD)
+      </a>
+    </div>
+  </main>
+</body>
+</html>
